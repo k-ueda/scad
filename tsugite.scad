@@ -22,23 +22,23 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-tw=4.8; // joint (tsugite) width (y-axis)
-tw2=4.8; // width of the beam to be connected
-td=4.8; // joint depth (z-axis)
-tl=tw*1.6; // slope length (traditional standard: 1.75)
-tl2=1.5; // end hook length
-hh=tw/4-0.1; // end hook height
-tx=tl+tl2+1; // minimal joint length / 2 (x-axis)
-pw=3; // plug width
-pd=1.6; // plug depth
-ch=max(1.4, tw/4); //center hook height
-d=-0.05; // basic slack for contacting faces (larger means tighter); 
+tw = 4.8; // joint (tsugite) width (y-axis)
+tw2 = 4.8; // width of the beam to be connected
+td = 4.8; // joint depth (z-axis)
+tl = tw*1.75; // slope length (traditional standard: 1.75)
+tl2 = 1.5; // end hook length
+hh = tw/4-0.1; // end hook height
+tx = tl+tl2+1; // minimal joint length / 2 (x-axis)
+pw = 3; // plug width
+pd = 1.6; // plug depth
+ch = max(1.4, tw/4); //center hook height
+d = -0.05; // basic slack for contacting faces (larger (towards 0) means tighter); 
          // needs careful adjustment so that the two pieces are joined firmly
          // (possibly with a plyer or a wooden hammer) but not too tightly
          // (in which case the joint might look non-straight)
-d1=-0.02; // center slack (possibly tigher than d)
-d2=-td/20; // center slope (traditional standard: -td/20)
-len=50;  // total joint length
+d1 = -0.02; // center slack (possibly tigher than d)
+d2 = -td/20; // center slope (traditional standard: -td/20)
+len = 50;  // total joint length
 
 module tsugite_noplug(h) {
   linear_extrude(height=h) 
@@ -57,6 +57,7 @@ module tsugite_noplug(h) {
   linear_extrude(height=ch)
     polygon([[d1,0],[d2+d,td],[d2+d,0]]);
 }
+
 module tsugite_plug(h) {
   difference() {
     tsugite_noplug(h);
@@ -88,10 +89,11 @@ module plug(a,b,d) {
 
 // plugs of different sizes; choose tight ones.
 // loose ones would make the joint significantly weaker;
-// while too tight ones would cause delamination
-//for(x=[-2:-1]) translate([6*x,-2*tw]) plug(3,4,-0.05);
-//for(x=[0:1]) translate([6*x,-2*tw]) plug(2,3.5,-0.05);
-//for(x=[2:3]) translate([6*x,-2*tw]) plug(1,3.5,-0.05);
+// while too tight ones (in z-axis) would cause delamination
+// parameters: p[serial number, x-axis tolerance, z-axis tolerance]
+//for (p=[[0,3,4],[1,2,3],[2,1,3]])
+//  for(x=[-1,1]) translate([x*tl/1.6-pw/2,-(p[0]+1.5)*(tw+1)])
+//    plug(p[1],p[2],-0.05);
 
 // ends for tensile test
 $fn=36;
@@ -103,6 +105,7 @@ module end() {
     translate([-25,i*(tw/2+12.5)]) cylinder(d=25,h=td,center=true);
   }
 }
+
 //translate([50,0]) end();
 //translate([-50,10]) scale([-1,1]) end();
 

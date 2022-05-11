@@ -22,34 +22,41 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 include <tsugite.scad>;
-bw=4.8; // beam width
-tw=6.0; // joint width (y-axis)
-tw2=tw; // width of joint extension
-td=4.8; // joint (tsugite) depth (z-axis)
-tl=tw*1.75; // slope length (traditional standard: 1.75)
-tl2=2; // end hook length
-hh=tw/4-0.1; // end hook height
-tx=tl+tl2+1; // minimal joint length / 2 (x-axis)
-pw=3; // plug width
-pd=1.6; // plug depth
-ch=max(1.4, tw/4); //center hook height
-d=-0.05; // basic slack
-d1=-0.02; // center slack (possibly tigher than d)
-d2=-td/20; // center slope
-len=50; // unit length of truss triangle
+// parameters for tsugite joints
+bw = 4.8; // beam width
+tw = 6.0; // joint width (y-axis)
+tw2 = tw; // width of joint extension
+td = 4.8; // joint (tsugite) depth (z-axis)
+tl = tw*1.75; // slope length (traditional standard: 1.75)
+tl2 = 2; // end hook length
+hh = tw/4-0.1; // end hook height
+tx = tl+tl2+1; // minimal joint length / 2 (x-axis)
+pw = 3; // plug width
+pd = 1.6; // plug depth
+ch = max(1.4, tw/4); //center hook height
+d = -0.05; // basic slack
+d1 = -0.02; // center slack (possibly tigher than d)
+d2 = -td/20; // center slope
+
+// truss parameters
+len = 50; // unit length of truss triangle
+
+// pad and wall control for first-layer adhesion
+pad = 2; // 0: no pad at joint ends; 1: standard pad; 2: pad with wall
 
 // wall for ensuring the right shape of the far ends of joints
 module wall() {
   linear_extrude(td) translate([0,-tw/2-2])
-  polygon([[-1.6,0.4],[4,0.4],[4,1],[-1,1],
-           [-1,1+tw],[4,1+tw],[4,1.6+tw],[-1.6,1.6+tw]]);
+  polygon([[-1.6,-0.6],[4,-0.6],[4,0],[-1,0],
+           [-1,2+tw],[4,2+tw],[4,2.6+tw],[-1.6,2.6+tw]]);
 }
 
 // joint with pad and optional wall  
 module tsugite_pad(len,lr,wall) {
   tsugite(len,lr);
-  translate([-lr*tx-4,-(2+lr+tw/2),0]) cube([8,tw+4,0.2]);
-  if (wall == 1)
+  if (pad >= 1) 
+    translate([-lr*tx-4,-(2+lr+tw/2),0]) cube([8,tw+4,0.2]);
+  if (pad >= 2 && wall == 1)
     rotate([0,0,90*(1-lr)]) translate([-tx,0]) wall();
 }
 
@@ -108,6 +115,6 @@ intersection() {
 //  translate([2*len,0]) cube([2*len,2*len,100], center=true); // for the left end
 }
 
-// plugs (with two extras)
+// plugs (with two extras); carefully tune the first two args of plug!
 for(x=[1:8]) translate([6*x,-2*tw]) plug(2,3.5,-0.05);
  
